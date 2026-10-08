@@ -1,1 +1,39 @@
+For hosting the game
+
+First install node.js from official website (.msi -- version)
+
+
+Then extract the zip in one of you folders
+
+go to the folder where you have extracted
+
+then type cmd in File address and press enter
+
+then type "npm install"
+
+then after installing 
+
+# type ( ipconfig ) in your command prompt
+you will get your one of the out put as 
+(  IPv4 Address. . . . . . . . . . . : 192.168.30.16 )  -- this will be required later #
+
+
+type "npm start"
+
+it will take sometime to load for the first time 
+
+then  you will get your link to the web page 
+ example   ( http://localhost:3000 )
+
+then paste this on your web browser
+
+
+
+For joining the game
+share your IPv4 address earlier we got to your friend then type :the localhost code
+
+example 192.168.30.16:3000
+
+3000 and IPv4 Address may vary so be carful with that
+
 
