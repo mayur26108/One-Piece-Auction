@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grand Line Bounty Auction</title>
+  <meta name="theme-color" content="#07111c" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="grain"></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">☠</div>
+      <div>
+        <div class="brand-kicker">GRAND LINE</div>
+        <h1>Bounty Auction</h1>
+      </div>
+    </div>
+    <div class="room-pill hidden" id="roomPill">ROOM <strong id="roomCodeText">—</strong></div>
+  </header>
+
+  <main class="shell">
+    <section id="landingView" class="view">
+      <div class="hero-card">
+        <div class="poster-stamp">WANTED</div>
+        <div class="hero-copy">
+          <p class="eyebrow">BUILD YOUR CREW • OUTBID YOUR FRIENDS</p>
+          <h2>Claim the Grand Line’s most wanted names.</h2>
+          <p class="hero-sub">One character at a time. One hidden bid at a time. Six picks per player.</p>
+        </div>
+      </div>
+
+      <div class="setup-grid">
+        <form class="panel" id="createForm">
+          <div class="panel-title">Create a lobby</div>
+          <p class="panel-sub">You are the host. Set the rules, then send the room code or invite link.</p>
+          <label>Host name<input id="hostName" maxlength="20" placeholder="Captain Mayur" required /></label>
+          <div class="two-col">
+            <label>Players<select id="playerCount">
+              <option value="2">2 players</option><option value="3" selected>3 players</option><option value="4">4 players</option>
+              <option value="5">5 players</option><option value="6">6 players</option><option value="7">7 players</option><option value="8">8 players</option>
+            </select></label>
+            <label>Budget per player<input id="startingBudget" type="number" min="1" max="1000000" value="50" required /></label>
+          </div>
+          <label>Auction timer<select id="timerSeconds">
+            <option value="10">10 sec</option><option value="15">15 sec</option><option value="20" selected>20 sec</option><option value="30">30 sec</option>
+            <option value="45">45 sec</option><option value="60">60 sec</option><option value="custom">Custom…</option>
+          </select></label>
+          <div id="customTimerWrap" class="hidden"><label>Custom timer (5–120 sec)<input id="customTimer" type="number" min="5" max="120" value="20" /></label></div>
+          <button class="btn btn-primary btn-lg" type="submit">CREATE GRAND LINE LOBBY</button>
+          <div class="form-error" id="createError"></div>
+        </form>
+
+        <form class="panel panel-dark" id="joinForm">
+          <div class="panel-title">Join a lobby</div>
+          <p class="panel-sub">Enter the room code from the host, then pick a player name.</p>
+          <label>Your name<input id="joinName" maxlength="20" placeholder="Zoro" required /></label>
+          <label>Room code<input id="joinRoom" maxlength="5" placeholder="AB7KQ" autocomplete="off" required /></label>
+          <button class="btn btn-secondary btn-lg" type="submit">ENTER THE LOBBY</button>
+          <div class="form-error" id="joinError"></div>
+          <div class="rule-note"><span>RULE</span> No character images are used. The auction reveals names only.</div>
+        </form>
+      </div>
+      <div class="footer-note">Fan-made party game inspired by One Piece. Use your own character database in <code>data/characters.json</code>.</div>
+    </section>
+
+    <section id="lobbyView" class="view hidden">
+      <div class="lobby-head">
+        <div>
+          <p class="eyebrow">ROOM READY</p>
+          <h2>Gather your crew</h2>
+          <p id="lobbyStatus" class="muted">Waiting for players…</p>
+        </div>
+        <div class="share-box">
+          <div class="share-code" id="shareCode">—</div>
+          <button class="btn btn-ghost" id="copyInvite">COPY INVITE LINK</button>
+          <div class="tiny" id="inviteHint">Friends on the same Wi‑Fi can use your computer’s local IP.</div>
+        </div>
+      </div>
+
+      <div class="lobby-grid">
+        <div class="panel">
+          <div class="panel-title-row"><div class="panel-title">Crew manifest</div><div id="crewCount" class="badge">0 / 0</div></div>
+          <div id="playerList" class="player-list"></div>
+        </div>
+        <div class="panel panel-dark">
+          <div class="panel-title">Auction rules</div>
+          <div class="rules">
+            <div><strong>6 characters</strong><span>per player</span></div>
+            <div><strong>Highest bid</strong><span>wins the character</span></div>
+            <div><strong>Tie?</strong><span>random tiebreak</span></div>
+            <div><strong>Budget cap</strong><span>you can never overbid</span></div>
+            <div><strong>Bankrupt?</strong><span>you receive the final leftovers</span></div>
+            <div><strong>No positive bids</strong><span>random free assignment</span></div>
+          </div>
+          <button class="btn btn-primary btn-lg" id="startGame">SET SAIL — START AUCTION</button>
+          <div class="form-error" id="lobbyError"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameView" class="view hidden">
+      <div class="game-top">
+        <div><p class="eyebrow" id="phaseKicker">ROUND 1</p><h2 id="phaseTitle">Place your bid</h2></div>
+        <div class="game-meta"><span>CHARACTERS LEFT <strong id="charsLeft">—</strong></span><span>ROUND <strong id="roundText">—</strong></span></div>
+      </div>
+
+      <div class="game-grid">
+        <div class="auction-column">
+          <div class="wanted-card" id="characterCard">
+            <div class="wanted-top">WANTED • ALIVE</div>
+            <div class="wanted-name" id="characterName">Waiting…</div>
+            <div class="wanted-bottom">GRAND LINE CREW AUCTION</div>
+          </div>
+
+          <div class="timer-box" id="timerBox">
+            <div class="timer-label">TIME REMAINING</div>
+            <div class="timer-number" id="timerNumber">20</div>
+            <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+          </div>
+
+          <div class="result-box hidden" id="resultBox">
+            <div class="result-title">CHARACTER CLAIMED</div>
+            <div class="result-winner" id="resultWinner">—</div>
+            <div class="result-meta" id="resultMeta">—</div>
+          </div>
+
+          <form class="bid-box" id="bidForm">
+            <div class="bid-label">YOUR BID</div>
+            <div class="bid-row"><input id="bidInput" type="number" min="0" step="1" placeholder="0" autocomplete="off" /><button class="btn btn-primary" type="submit">LOCK BID</button></div>
+            <div class="bid-help" id="bidHelp">You can bid up to your remaining budget.</div>
+          </form>
+          <div class="status-banner" id="gameMessage">Waiting for auction…</div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="panel panel-dark scoreboard-panel">
+            <div class="panel-title-row"><div class="panel-title">Crew scoreboard</div><div class="badge" id="bidCount">0 / 0</div></div>
+            <div id="scoreboard" class="scoreboard"></div>
+          </div>
+          <div class="panel deck-panel">
+            <div class="panel-title">How automatic rules work</div>
+            <p><b>Missed bid:</b> treated as 0.</p>
+            <p><b>All zero:</b> random player with a free slot gets the name.</p>
+            <p><b>Budget reaches 0:</b> paid bidding ends for that player.</p>
+            <p><b>Final leftovers:</b> when the remaining names exactly match bankrupt players’ empty slots, those names are filled automatically so everyone finishes with 6.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="finishView" class="view hidden">
+      <div class="finish-hero">
+        <div class="poster-stamp">FINAL</div>
+        <p class="eyebrow">THE CREWS ARE COMPLETE</p>
+        <h2>Final bounty standings</h2>
+        <p class="muted">Every player has exactly six characters. Compare your crews and argue about the auction results.</p>
+      </div>
+      <div id="finalScoreboard" class="final-scoreboard"></div>
+      <div class="finish-actions"><button class="btn btn-primary" id="backHome">RETURN TO MAIN MENU</button></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
